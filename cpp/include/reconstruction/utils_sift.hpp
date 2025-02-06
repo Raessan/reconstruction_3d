@@ -4,16 +4,24 @@
 #include <vector>
 #include <iostream>
 
-// Function to dilate the mask
-cv::Mat dilateMask(const cv::Mat& mask, int kernelSize = 3) {
+// Function to dilate the mask to facilitate matching
+cv::Mat dilate_mask(const cv::Mat& mask, int kernelSize = 3) {
     cv::Mat kernel = cv::Mat::ones(kernelSize, kernelSize, CV_8U);
     cv::Mat dilatedMask;
     cv::dilate(mask, dilatedMask, kernel);
     return dilatedMask;
 }
 
+// Function to erode the mask to facilitate matching
+cv::Mat erode_mask(const cv::Mat& mask, int kernelSize = 3) {
+    cv::Mat kernel = cv::Mat::ones(kernelSize, kernelSize, CV_8U);
+    cv::Mat erodedMask;
+    cv::erode(mask, erodedMask, kernel);
+    return erodedMask;
+}
+
 // Function to enhance contrast using CLAHE
-cv::Mat enhanceContrast(const cv::Mat& image) {
+cv::Mat enhance_contrast(const cv::Mat& image) {
     cv::Mat labImage, l, a, b;
     cv::cvtColor(image, labImage, cv::COLOR_BGR2Lab);
     std::vector<cv::Mat> labChannels;
@@ -28,35 +36,35 @@ cv::Mat enhanceContrast(const cv::Mat& image) {
 }
 
 // Function to apply a mask to an image
-cv::Mat applyMask(const cv::Mat& image, const cv::Mat& mask) {
+cv::Mat apply_mask(const cv::Mat& image, const cv::Mat& mask) {
     cv::Mat maskedImage;
     cv::bitwise_and(image, image, maskedImage, mask * 255);
     return maskedImage;
 }
 
 // Function to compute SIFT features
-void computeSIFTFeatures(const cv::Mat& image, std::vector<cv::KeyPoint>& keypoints, cv::Mat& descriptors) {
+void compute_sift_features(const cv::Mat& image, std::vector<cv::KeyPoint>& keypoints, cv::Mat& descriptors) {
     auto sift = cv::SIFT::create(0, 3, 0.01, 10, 1.6);
     sift->detectAndCompute(image, cv::noArray(), keypoints, descriptors);
 }
 
 // Function to perform brute-force matching with Lowe's ratio test
-std::vector<cv::DMatch> matchFeatures(const cv::Mat& desc1, const cv::Mat& desc2) {
+std::vector<cv::DMatch> match_features(const cv::Mat& desc1, const cv::Mat& desc2) {
     cv::BFMatcher matcher(cv::NORM_L2);
     std::vector<std::vector<cv::DMatch>> knnMatches;
     matcher.knnMatch(desc1, desc2, knnMatches, 2);
 
-    std::vector<cv::DMatch> goodMatches;
+    std::vector<cv::DMatch> good_matches;
     for (const auto& m : knnMatches) {
         if (m[0].distance < 0.75 * m[1].distance) {
-            goodMatches.push_back(m[0]);
+            good_matches.push_back(m[0]);
         }
     }
-    return goodMatches;
+    return good_matches;
 }
 
 // Function to compute 3D points from matches
-void get3DPointsMatched(const std::vector<cv::DMatch>& matches,
+void get_3D_points_matched(const std::vector<cv::DMatch>& matches,
                         const std::vector<cv::KeyPoint>& keypoints1,
                         const std::vector<cv::KeyPoint>& keypoints2,
                         const cv::Mat& depth1,
@@ -66,10 +74,11 @@ void get3DPointsMatched(const std::vector<cv::DMatch>& matches,
                         float maxDepth,
                         std::vector<cv::Point3f>& points1_3D,
                         std::vector<cv::Point3f>& points2_3D) {
-    float fx = cameraMatrix.at<float>(0, 0);
-    float fy = cameraMatrix.at<float>(1, 1);
-    float cx = cameraMatrix.at<float>(0, 2);
-    float cy = cameraMatrix.at<float>(1, 2);
+
+    double fx = cameraMatrix.at<double>(0, 0);
+    double fy = cameraMatrix.at<double>(1, 1);
+    double cx = cameraMatrix.at<double>(0, 2);
+    double cy = cameraMatrix.at<double>(1, 2);
 
     for (const auto& match : matches) {
         int u1 = static_cast<int>(std::round(keypoints1[match.queryIdx].pt.x));
@@ -95,7 +104,7 @@ void get3DPointsMatched(const std::vector<cv::DMatch>& matches,
 }
 
 // Function to draw matches
-cv::Mat drawMatches(const cv::Mat& image1, const std::vector<cv::KeyPoint>& kp1,
+cv::Mat draw_matches(const cv::Mat& image1, const std::vector<cv::KeyPoint>& kp1,
                     const cv::Mat& image2, const std::vector<cv::KeyPoint>& kp2,
                     const std::vector<cv::DMatch>& matches) {
     cv::Mat matchedImage;
@@ -105,7 +114,7 @@ cv::Mat drawMatches(const cv::Mat& image1, const std::vector<cv::KeyPoint>& kp1,
 }
 
 // Function to estimate camera pose
-void estimateCameraPose(const std::vector<cv::KeyPoint>& kp1, const std::vector<cv::KeyPoint>& kp2,
+void estimate_camera_pose(const std::vector<cv::KeyPoint>& kp1, const std::vector<cv::KeyPoint>& kp2,
                         const std::vector<cv::DMatch>& matches, const cv::Mat& cameraMatrix,
                         cv::Mat& R, cv::Mat& t) {
     std::vector<cv::Point2f> points1, points2;
@@ -117,4 +126,28 @@ void estimateCameraPose(const std::vector<cv::KeyPoint>& kp1, const std::vector<
     cv::Mat mask;
     cv::Mat E = cv::findEssentialMat(points1, points2, cameraMatrix, cv::RANSAC, 0.999, 1.0, mask);
     cv::recoverPose(E, points1, points2, cameraMatrix, R, t, mask);
+}
+
+void compute_scale_and_transform(const cv::Mat& R, cv::Mat& t, 
+                              const std::vector<cv::Point3f>& points1_3D, 
+                              const std::vector<cv::Point3f>& points2_3D) {
+    std::vector<float> distances;
+
+    for (size_t i = 0; i < points1_3D.size(); i++) {
+        // Rotate points1_3D to align with second set
+        cv::Mat pt1 = (cv::Mat_<double>(3,1) << points1_3D[i].x, points1_3D[i].y, points1_3D[i].z);
+        cv::Mat pt1_rotated = R * pt1;
+
+        // Compute Euclidean distance between transformed point and actual second point
+        cv::Point3f pt1_rot(pt1_rotated.at<double>(0,0), pt1_rotated.at<double>(1,0), pt1_rotated.at<double>(2,0));
+        float distance = cv::norm(points2_3D[i] - pt1_rot);
+        distances.push_back(distance);
+    }
+
+    // Compute median distance (scale)
+    std::nth_element(distances.begin(), distances.begin() + distances.size() / 2, distances.end());
+    float scale = distances[distances.size() / 2];
+
+    // Scale translation vector
+    t *= scale;
 }

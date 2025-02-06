@@ -47,3 +47,19 @@ bool load_translation(const std::string& filename, Eigen::Vector3d& translationV
     file.close();
     return true;
 }
+
+// Function to save Eigen matrix/vector to a .txt file
+template <typename Derived>
+void save_eigen_txt(const Eigen::MatrixBase<Derived>& mat, const std::string& filename) {
+    std::ofstream file(filename);
+    if (!file.is_open()) {
+        std::cerr << "Error opening file: " << filename << std::endl;
+        return;
+    }
+
+    // Define the formatting: space-separated values, no alignment
+    Eigen::IOFormat CleanFormat(Eigen::FullPrecision, Eigen::DontAlignCols, " ", "\n");
+
+    file << mat.format(CleanFormat) << std::endl;
+    file.close();
+}

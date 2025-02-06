@@ -117,10 +117,11 @@ std::shared_ptr<open3d::geometry::PointCloud> estimate_normals(std::shared_ptr<o
 }
 
 // Function to preprocess the point cloud
-std::shared_ptr<open3d::geometry::PointCloud> preprocess_pcd(const geometry::PointCloud &pcd, double voxel_size = 0.001) {
+std::shared_ptr<open3d::geometry::PointCloud> preprocess_pcd(const geometry::PointCloud &pcd, double voxel_size = 0.001, bool with_normals = false) {
     auto downsampled = voxelize(pcd, voxel_size);
     auto outliers_removed = outlier_removal(*downsampled);
-    return estimate_normals(outliers_removed);
+    if (with_normals) return estimate_normals(outliers_removed);
+    else return outliers_removed;
 }
 
 // Function to transform a point cloud

@@ -11,26 +11,28 @@ set(CMAKE_BUILD_TYPE "Release")
 find_package(Eigen3 REQUIRED)
 find_package(OpenCV REQUIRED)
 find_package(Open3D REQUIRED)
+find_package(realsense2 REQUIRED)
 
 # Include directories for Eigen3 and OpenCV
 include_directories(${EIGEN3_INCLUDE_DIR})
 include_directories(${OpenCV_INCLUDE_DIRS})
+include_directories(${realsense2_INCLUDE_DIRS})
 
 # To include the "include" folder to the path, and OpenCV
 include_directories(include)
 
-add_executable(reconstruction reconstruction.cpp)
-target_link_libraries(reconstruction PRIVATE ${OpenCV_LIBS} Open3D::Open3D)
+# To compile the library of TensorRT
+add_subdirectory(tensorrt_lib/tensorrt_cpp/tensorrt_cpp_lib)
+add_subdirectory(tensorrt_lib/tensorrt_cpp/nn_handler_lib)
 
+# To compile the get_samples program
+add_executable(get_samples src/get_samples.cpp)
+target_link_libraries(get_samples PRIVATE nn_handler_lib ${realsense2_LIBRARY} ${OpenCV_LIBS} Open3D::Open3D)
 
+# To compile the reconstruction program
+add_executable(reconstruction src/reconstruction.cpp)
+target_link_libraries(reconstruction PRIVATE Open3D::Open3D)
 
-# # To compile the library of TensorRT
-# add_subdirectory(tensorrt_lib/tensorrt_cpp/tensorrt_cpp_lib)
-# add_subdirectory(tensorrt_lib/tensorrt_cpp/nn_handler_lib)
-
-# # To compile the main program
-# add_executable(inference_cpu src/inference_cpu.cpp)
-# target_link_libraries(inference_cpu PRIVATE nn_handler_lib ${OpenCV_LIBS})
-
-# add_executable(inference_gpu src/inference_gpu.cpp)
-# target_link_libraries(inference_gpu PRIVATE nn_handler_lib ${OpenCV_LIBS})
+# To compile the program for reconstruction from merged PC
+add_executable(reconstruction_from_merged_pc src/reconstruction_from_merged_pc.cpp)
+target_link_libraries(reconstruction_from_merged_pc PRIVATE Open3D::Open3D)
