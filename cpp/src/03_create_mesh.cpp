@@ -14,10 +14,22 @@ using namespace open3d::pipelines::registration;
 
 int main() {
 
-    auto pcd = io::CreatePointCloudFromFile("../../data/data_pikachu/merged_pointcloud/merged_pc.ply");
+    // Set the directory where your merged pc is stored and where the mesh will be saved
+    std::string data_dir = "../../data/data_rayquaza";
+    std::string merged_pc_dir = "merged_pointcloud";
+    std::string mesh_dir = "mesh";
+
+    // Depth for the reconstruction with Poisson
     int depth = 5;
 
-    std::cout << "Reconstructing..." << std::endl;
+    // Create directory for merged PC
+    fs::create_directories(data_dir + "/" + mesh_dir);
+
+    // Read the pcd
+    auto pcd = io::CreatePointCloudFromFile(data_dir + "/" + merged_pc_dir + "/merged_pc.ply");
+    
+
+    std::cout << "Creating mesh..." << std::endl;
 
     // Perform Poisson Surface Reconstruction
     auto [mesh, densities] = geometry::TriangleMesh::CreateFromPointCloudPoisson(*pcd, static_cast<int>(depth));
@@ -39,6 +51,9 @@ int main() {
 
     // Remove low-density vertices
     mesh->RemoveVerticesByMask(vertices_to_remove);
+
+    // Save mesh
+    open3d::io::WriteTriangleMesh(data_dir + "/" + merged_pc_dir + "/mesh.ply", *mesh);
 
     // Visualize the mesh
     visualization::DrawGeometries({mesh}, "Filtered Poisson Mesh");

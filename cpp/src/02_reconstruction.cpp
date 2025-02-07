@@ -13,7 +13,7 @@ using namespace open3d::geometry;
 using namespace open3d::pipelines::registration;
 
 int main() {
-    const std::string data_dir = "../../data/data_totodile";
+    const std::string data_dir = "../../data/data_rayquaza";
     const std::string pc_dir = "pointclouds";
     const std::string merged_pc_dir = "merged_pointcloud";
     const std::string rot_dir = "rotations";
@@ -24,8 +24,6 @@ int main() {
 
     // If n_merge is 0, all the pointclouds from the folder are used, otherwise, it will use the first n_merge pointclouds
     int n_merge = 0;
-    // Depth for the reconstruction with Poisson
-    const int depth = 5;
 
     // Create directory for merged PC
     fs::create_directories(data_dir + "/" + merged_pc_dir);
@@ -107,40 +105,15 @@ int main() {
         *merged_pcd += pcd;
     }
 
+
     if (open3d::io::WritePointCloud(data_dir + "/" + merged_pc_dir + "/merged_pc.ply", *merged_pcd)){
         std::cout << "Merged point cloud saved successfully!" << std::endl;
     }
     else{
         std::cerr << "Failed to save point cloud!" << std::endl;
     }
+    
     visualization::DrawGeometries({merged_pcd});
-
-
-    // Perform Poisson Surface Reconstruction
-    std::cout << "Running Poisson surface reconstruction..." << std::endl;
-    auto [mesh, densities] = geometry::TriangleMesh::CreateFromPointCloudPoisson(*merged_pcd, depth);
-
-    // Convert densities to a vector
-    std::vector<double> densities_vec(densities.begin(), densities.end());
-
-    // Compute density threshold (e.g., keep top 90% densest areas)
-    std::nth_element(densities_vec.begin(), densities_vec.begin() + densities_vec.size() * 0.005, densities_vec.end());
-    double density_threshold = densities_vec[densities_vec.size() * 0.005];
-
-    // Identify vertices to remove
-    std::vector<bool> vertices_to_remove(densities.size(), false);
-    for (size_t i = 0; i < densities.size(); ++i) {
-        if (densities[i] < density_threshold) {
-            vertices_to_remove[i] = true;
-        }
-    }
-
-    // Remove low-density vertices
-    mesh->RemoveVerticesByMask(vertices_to_remove);
-
-    // Visualize the mesh
-    std::cout << "Visualizing mesh..." << std::endl;
-    visualization::DrawGeometries({mesh}, "Filtered Poisson Mesh");
 
     return 0;
 }

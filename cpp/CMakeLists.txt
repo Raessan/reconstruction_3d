@@ -26,13 +26,13 @@ add_subdirectory(tensorrt_lib/tensorrt_cpp/tensorrt_cpp_lib)
 add_subdirectory(tensorrt_lib/tensorrt_cpp/nn_handler_lib)
 
 # To compile the get_samples program
-add_executable(get_samples src/get_samples.cpp)
-target_link_libraries(get_samples PRIVATE nn_handler_lib ${realsense2_LIBRARY} ${OpenCV_LIBS} Open3D::Open3D)
+add_executable(01_get_samples src/01_get_samples.cpp)
+target_link_libraries(01_get_samples PRIVATE nn_handler_lib ${realsense2_LIBRARY} ${OpenCV_LIBS} Open3D::Open3D)
 
 # To compile the reconstruction program
-add_executable(reconstruction src/reconstruction.cpp)
-target_link_libraries(reconstruction PRIVATE Open3D::Open3D)
+add_executable(02_reconstruction src/02_reconstruction.cpp)
+target_link_libraries(02_reconstruction PRIVATE Open3D::Open3D)
 
 # To compile the program for reconstruction from merged PC
-add_executable(reconstruction_from_merged_pc src/reconstruction_from_merged_pc.cpp)
-target_link_libraries(reconstruction_from_merged_pc PRIVATE Open3D::Open3D)
+add_executable(03_create_mesh src/03_create_mesh.cpp)
+target_link_libraries(03_create_mesh PRIVATE Open3D::Open3D)
