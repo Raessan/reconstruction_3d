@@ -63,7 +63,7 @@ constexpr double fine_threshold = voxel_size*5;
 /** \brief Path of the encoder model*/
 const std::string path_encoder = "/ssd/Datasets_and_code/reconstruction_project/models/sam2.1_hiera_small_encoder.onnx";
 /** \brief Path of the decoder model */
-const std::string path_decoder = "/ssd/Datasets_and_code/reconstruction_project/models/sam2.1_hiera_small_decoder_simp_static.onnx";
+const std::string path_decoder = "/ssd/Datasets_and_code/reconstruction_project/models/sam2.1_hiera_small_decoder.onnx";
 /** \brief Path to save the TensorRT engine for inference*/
 const std::string path_engine_save = "/ssd/Datasets_and_code/reconstruction_project/models/";
 
