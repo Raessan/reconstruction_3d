@@ -28,7 +28,7 @@ namespace fs = std::filesystem;
 
 // Directories
 /** \brief Directory for output  */
-const std::string output_dir = "../../data/data_totodile";
+const std::string output_dir = "../../data/data_dummy";
 /** \brief Directory for pointcloud inside output  */
 const std::string pc_dir = "pointclouds";
 /** \brief Directory for rotations inside output  */
@@ -423,9 +423,9 @@ int main() {
                 //Eigen::Vector3d t_eigen;
                 cv::cv2eigen(t, t_eigen);
 
-                std::cout << "Rotation: " << axis << std::endl;
-                std::cout << "Angle in degrees: " << angle_degrees << std::endl;
-                std::cout << "Translation: " << t_eigen << std::endl;
+                // std::cout << "Rotation: " << axis << std::endl;
+                // std::cout << "Angle in degrees: " << angle_degrees << std::endl;
+                // std::cout << "Translation: " << t_eigen << std::endl;
 
                 matched_images.push_back(matched_image.clone());
                 rotations.push_back(R_eigen);

@@ -10,7 +10,7 @@ from utils.utils_pointcloud import *
 import time
 
 # Set up output directory
-OUTPUT_DIR = "../data/data_pikachu"
+OUTPUT_DIR = "../data/data_dummy"
 MODEL_DIR = "../models"
 
 # Directories for the pointcloud, rotation matrices and translation vectors
@@ -368,9 +368,9 @@ try:
                 # Convert angle to degrees (optional)
                 angle_degrees = np.degrees(angle)
 
-                print("Rotation: ", axis)
-                print("Angle in degrees: ", angle_degrees)
-                print("Translation: ", t_scaled)
+                # print("Rotation: ", axis)
+                # print("Angle in degrees: ", angle_degrees)
+                # print("Translation: ", t_scaled)
 
                 # Save vectors
                 matched_images.append(matched_image)

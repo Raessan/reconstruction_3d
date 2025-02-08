@@ -13,11 +13,15 @@ using namespace open3d::geometry;
 using namespace open3d::pipelines::registration;
 
 int main() {
-    const std::string data_dir = "../../data/data_rayquaza";
+
+    // Variables for the path and directory names
+    const std::string data_dir = "../../data/data_dummy";
     const std::string pc_dir = "pointclouds";
     const std::string merged_pc_dir = "merged_pointcloud";
     const std::string rot_dir = "rotations";
     const std::string trans_dir = "translations";
+
+    // Variables for the pointcloud processing
     const double voxel_size = 0.001;
     const double coarse_threshold = voxel_size * 15;
     const double fine_threshold = voxel_size * 5;
@@ -80,7 +84,7 @@ int main() {
     auto pose_graph = full_registration(pointclouds, new_rot, new_trans, coarse_threshold, fine_threshold);
 
     std::cout << "Optimizing PoseGraph..." << std::endl;
-    GlobalOptimizationOption option(fine_threshold, 0.25, 0);
+    GlobalOptimizationOption option(fine_threshold, 0.25, 1.0, 0);
     GlobalOptimization(pose_graph, GlobalOptimizationLevenbergMarquardt(),
                         GlobalOptimizationConvergenceCriteria(), option);
 

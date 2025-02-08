@@ -6,7 +6,7 @@ import os
 from utils.utils_pointcloud import *
 
 # Set the directory where your .ply files are stored
-DATA_DIR = "../data/data_rayquaza"
+DATA_DIR = "../data/data_dummy"
 PC_DIR = "pointclouds"
 ROT_DIR = "rotations"
 TRANS_DIR = "translations"
@@ -53,6 +53,7 @@ print("Optimizing PoseGraph ...")
 option = o3d.pipelines.registration.GlobalOptimizationOption(
     max_correspondence_distance=FINE_THRESHOLD,
     edge_prune_threshold=0.25,
+    preference_loop_closure=1.0,
     reference_node=0)
 
 o3d.pipelines.registration.global_optimization(

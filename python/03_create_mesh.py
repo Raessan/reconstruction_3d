@@ -4,12 +4,12 @@ import os
 from utils.utils_pointcloud import *
 
 # Set the directory where your merged pc is stored and where the mesh will be saved
-DATA_DIR = "../data/data_rayquaza"
+DATA_DIR = "../data/data_dummy"
 MERGED_PC_DIR = "merged_pointcloud"
 MESH_DIR = "mesh"
 
 # Depth for the reconstruction with Poisson
-DEPTH = 5
+DEPTH = 9
 
 # Creation of directory for the mesh
 os.makedirs(os.path.join(DATA_DIR, MESH_DIR), exist_ok=True)

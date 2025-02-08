@@ -15,12 +15,12 @@ using namespace open3d::pipelines::registration;
 int main() {
 
     // Set the directory where your merged pc is stored and where the mesh will be saved
-    std::string data_dir = "../../data/data_rayquaza";
+    std::string data_dir = "../../data/data_dummy";
     std::string merged_pc_dir = "merged_pointcloud";
     std::string mesh_dir = "mesh";
 
     // Depth for the reconstruction with Poisson
-    int depth = 5;
+    int depth = 9;
 
     // Create directory for merged PC
     fs::create_directories(data_dir + "/" + mesh_dir);
