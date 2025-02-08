@@ -36,6 +36,9 @@ const std::string rotations_dir = "rotations";
 /** \brief Directory for translations inside output  */
 const std::string translations_dir = "translations";
 
+/** \brief Number of points to use for the inference */
+int n_points = 5;
+
 /** \brief Minimum depth to consider  */
 constexpr double min_depth = 0.1; 
 /** \brief Maximum depth to consider  */
@@ -80,9 +83,6 @@ std::unique_ptr<NNHandler> nn_handler_encoder;
 
 /** \brief Pointer of decoder model */
 std::unique_ptr<NNHandler> nn_handler_decoder;
-
-/** \brief Number of auxiliar points */
-int n_points = 5;
 
 /** \brief Vector of positive points */
 std::vector<std::vector<int>> positive_points;
