@@ -91,9 +91,19 @@ def run_icp(pcd1, pcd2, rotation, translation, coarse_threshold, fine_threshold)
     )
 
     # Fine registration
+    # Check if both point clouds have normals
+    has_normals = pcd1.has_normals() and pcd2.has_normals()
+
+    # Select fine registration method
+    if has_normals:
+        estimation_method = o3d.pipelines.registration.TransformationEstimationPointToPlane()
+    else:
+        estimation_method = o3d.pipelines.registration.TransformationEstimationPointToPoint()
+
+    # Fine registration
     reg_fine = o3d.pipelines.registration.registration_icp(
         pcd1, pcd2, fine_threshold, reg_coarse.transformation,
-        o3d.pipelines.registration.TransformationEstimationPointToPoint()
+        estimation_method
     )
 
     # Information of the ICP

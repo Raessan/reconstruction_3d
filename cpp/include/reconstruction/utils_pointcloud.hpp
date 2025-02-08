@@ -57,9 +57,22 @@ run_icp(const open3d::geometry::PointCloud& pcd1, const open3d::geometry::PointC
         pcd1, pcd2, coarse_threshold, transformation,
         open3d::pipelines::registration::TransformationEstimationPointToPoint());
 
+    // For fine registration, we use PointToPoint or PointToPlane according to whether the PCs have normals
+
+    // Check if both point clouds have normals
+    bool has_normals = pcd1.HasNormals() && pcd2.HasNormals();
+
+    // Select fine registration method
+    std::shared_ptr<open3d::pipelines::registration::TransformationEstimation> estimation_method;
+    if (has_normals) {
+        estimation_method = std::make_shared<open3d::pipelines::registration::TransformationEstimationPointToPlane>();
+    } else {
+        estimation_method = std::make_shared<open3d::pipelines::registration::TransformationEstimationPointToPoint>();
+    }
+
+    // Fine registration
     auto reg_fine = open3d::pipelines::registration::RegistrationICP(
-        pcd1, pcd2, fine_threshold, reg_coarse.transformation_,
-        open3d::pipelines::registration::TransformationEstimationPointToPoint());
+        pcd1, pcd2, fine_threshold, reg_coarse.transformation_, *estimation_method);
 
     auto information_icp = open3d::pipelines::registration::GetInformationMatrixFromPointClouds(
         pcd1, pcd2, fine_threshold, reg_fine.transformation_);
